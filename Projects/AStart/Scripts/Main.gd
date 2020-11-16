@@ -58,7 +58,7 @@ func on_exit():
 func on_enter():
 	if current_state == STATE_DRAW:
 		$TileMap.clear()
-		$HUD.message("Zeichen die Wände")
+		$HUD.message("Zeichne die Wände!")
 		$HUD.show_weiter()
 	elif current_state == STATE_SETSTART:
 		$HUD.message("Wo ist der Start?")

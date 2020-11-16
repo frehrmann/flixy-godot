@@ -11,6 +11,15 @@ script = ExtResource( 2 )
 StepsPerCylce = 8
 Debug = true
 
+[node name="ColorRect" type="ColorRect" parent="."]
+margin_right = 1025.0
+margin_bottom = 598.0
+mouse_filter = 2
+color = Color( 0.443137, 0.658824, 0.411765, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource( 1 )
 cell_size = Vector2( 16, 16 )

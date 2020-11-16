@@ -14,6 +14,8 @@ font_path = "res://Ubuntu-Medium.ttf"
 
 [sub_resource type="DynamicFont" id=4]
 size = 64
+outline_size = 1
+outline_color = Color( 0.0235294, 0.0117647, 0.0117647, 1 )
 font_data = SubResource( 3 )
 
 [node name="HUD" type="CanvasLayer"]
@@ -33,12 +35,12 @@ __meta__ = {
 }
 
 [node name="Button" type="Button" parent="."]
-margin_left = 52.3842
-margin_top = 41.2724
-margin_right = 269.384
-margin_bottom = 120.272
+margin_left = 50.3842
+margin_top = 42.2724
+margin_right = 267.384
+margin_bottom = 121.272
 custom_fonts/font = SubResource( 4 )
-custom_colors/font_color = Color( 0.411765, 0.6, 0.447059, 1 )
+custom_colors/font_color = Color( 0.776471, 0.611765, 0.117647, 1 )
 shortcut_in_tooltip = false
 text = "Weiter"
 flat = true
