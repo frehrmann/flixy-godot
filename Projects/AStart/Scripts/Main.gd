@@ -27,8 +27,8 @@ export var StepsPerCylce = 4
 export(bool) var Debug = false
 
 func start_search():
-	var size = get_viewport().size
-	$Search.start(start_tile, end_tile, $TileMap.world_to_map(size))
+	var size = $TileMap.world_to_map(get_viewport().size) + Vector2(1,1)
+	$Search.start(start_tile, end_tile, size)
 
 func check_block():
 	var tile_pos = $Search.current()
