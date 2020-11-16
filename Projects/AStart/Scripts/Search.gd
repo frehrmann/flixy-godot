@@ -6,6 +6,7 @@ var current_block
 var start_pos
 var size
 var dirs = [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]
+export(bool) var AStar
 
 func start(start, target, max_tile_idx):
 	blocks = []
@@ -30,6 +31,17 @@ func blocked():
 func is_in(pos):
 	return pos.x >= 0 and pos.y >= 0 and pos.x < size.x and pos.y < size.y 
 
+func dist2finish(elem, pos):
+	return elem.distance_to(finish) < pos.distance_to(finish)
+
+func add_to_queue(pos):
+	if !blocks.has(pos):
+		if AStar:
+			var idx = blocks.bsearch_custom(pos, self, "dist2finish")
+			blocks.insert(idx, pos)
+		else:
+			blocks.push_back(pos)
+
 # current block is free
 func freeblock():
 	dirs.shuffle()
@@ -37,7 +49,7 @@ func freeblock():
 		var pos = current_block + dir
 		if is_in(pos) and pos != start_pos:
 			$Storage.set_fromv(pos, current_block)
-			blocks.append(pos)
+			add_to_queue(pos)
 	current_block = blocks.pop_front()
 
 func current():
