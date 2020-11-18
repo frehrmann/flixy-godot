@@ -58,8 +58,10 @@ func freeblock():
 	dirs.shuffle()
 	for dir in dirs:
 		var pos = current_block + dir
+		var dist = $Storage.get_distv(pos)
 		if is_in(pos) and pos != start_pos:
 			$Storage.set_fromv(pos, current_block)
+			$Storage.set_distv(pos, dist+1)
 			add_to_queue(pos)
 	current_block = blocks.pop_front()
 
