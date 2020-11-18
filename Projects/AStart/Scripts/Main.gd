@@ -1,7 +1,8 @@
 extends Node2D
 
 enum { TILE_BLOCKED, TILE_VISITED, TILE_START, TILE_TARGET, TILE_PATH }
-enum { NOSTATE, STATE_START, STATE_DRAW, STATE_SETSTART, STATE_SETTARGET, STATE_SEARCH, STATE_NOTFOUND, STATE_GO }
+enum { NOSTATE, STATE_START, STATE_DRAW, STATE_SETSTART, STATE_SETTARGET,
+	   STATE_SEARCH, STATE_NOTFOUND, STATE_GO, STATE_FINISHED }
 
 var StateNames = {
 	NOSTATE : "NOSTATE",
@@ -11,7 +12,8 @@ var StateNames = {
 	STATE_SETTARGET : "SET FINISH",
 	STATE_SEARCH : "SEARCH",
 	STATE_NOTFOUND : "NOT FOUND",
-	STATE_GO : "GO"
+	STATE_GO : "GO",
+	STATE_FINISHED : "FINISHED",
 }
 
 var current_state = STATE_START
@@ -22,12 +24,20 @@ var last_block_pos
 var start_tile
 var end_tile
 var path = []
+var set_ends = true
 
 export var StepsPerCylce = 4
 export(bool) var Debug = false
 
+func _ready():
+	for t in $Search.DISTTYPE.keys():
+		$HUD.add_item_to_list(t)
+	on_enter()
+
 func start_search():
 	var size = $TileMap.world_to_map(get_viewport().size) + Vector2(1,1)
+	$Search.Type = $HUD.get_type()
+	$Search.MixFactor = $HUD.get_factor()
 	$Search.start(start_tile, end_tile, size)
 
 func check_block():
@@ -49,15 +59,18 @@ func check_block():
 	
 
 func on_exit():
-	if current_state == STATE_DRAW:
+	if current_state == STATE_START:
+		$HUD.hide_options()
+	elif current_state == STATE_DRAW:
 		$HUD.hide_weiter()
-	elif current_state == STATE_SEARCH:
-		$HUD.show_message()
-		$HUD.message("Fertig!")
+
 
 func on_enter():
-	if current_state == STATE_DRAW:
-		$TileMap.clear()
+	if current_state == STATE_START:
+		$HUD.message("Tip to start!")
+		$HUD.show_options()
+	elif current_state == STATE_DRAW:
+		clear_map()
 		$HUD.message("Zeichne die Wände!")
 		$HUD.show_weiter()
 	elif current_state == STATE_SETSTART:
@@ -69,6 +82,8 @@ func on_enter():
 		start_search()
 	elif current_state == STATE_NOTFOUND:
 		$HUD.message("Kann das Ziel nicht erreichen!")
+	elif current_state == STATE_FINISHED:
+		$HUD.message("Fertig!")
 
 func transition():
 	if new_state != NOSTATE and new_state != current_state:
@@ -77,24 +92,22 @@ func transition():
 		current_state = new_state
 		on_enter()
 
-func _ready():
-	$HUD.message("Tip to start!")
-
 func _input(event):
 	if event is InputEventKey:
 		if event.scancode == KEY_ESCAPE:
 			get_tree().quit(0)
 	if event is InputEventMouseButton and !event.pressed:
-		if current_state == STATE_START:
-			new_state = STATE_DRAW
-		elif current_state == STATE_SETSTART:
+		if current_state == STATE_SETSTART:
 			start_tile = set_block(TILE_START)
 			new_state = STATE_SETTARGET
 		elif current_state == STATE_SETTARGET:
 			end_tile = set_block(TILE_TARGET)
 			new_state = STATE_SEARCH
+			set_ends = false
 		elif current_state == STATE_NOTFOUND:
-			new_state = STATE_DRAW
+			new_state = STATE_START
+		elif current_state == STATE_FINISHED:
+			new_state = STATE_START
 
 func _unhandled_input(event):
 	if current_state == STATE_DRAW:
@@ -106,6 +119,9 @@ func _unhandled_input(event):
 				else:
 					$HUD.show_weiter()
 					draw = false
+	if event is InputEventMouseButton and !event.pressed:
+		if current_state == STATE_START:
+			new_state = STATE_DRAW
 
 func _physics_process(delta):
 	transition()
@@ -116,10 +132,25 @@ func _physics_process(delta):
 			check_block()
 	elif current_state == STATE_GO:
 		if path.empty():
-			new_state = STATE_START
+			new_state = STATE_FINISHED
 		else:
 			var pos = path.pop_back()
 			$TileMap.set_cellv(pos, TILE_PATH)
+
+func clear_map():
+	if $HUD.get_clear_map():
+		$TileMap.clear()
+		set_ends = true
+	else:
+		var size = $TileMap.world_to_map(get_viewport().size) + Vector2(1,1)
+		for i in range(size.x):
+			for j in range(size.y):
+				var tile = $TileMap.get_cell(i, j)
+				if tile == TILE_VISITED or tile == TILE_PATH:
+					$TileMap.set_cell(i, j, -1)
+				elif (tile == TILE_START or tile == TILE_TARGET) and $HUD.get_clear_ends():
+					$TileMap.set_cell(i, j, -1)
+					set_ends = true
 
 func state_draw_process(_delta):
 	if draw:
@@ -142,4 +173,7 @@ func set_block(block_id):
 	return map_mouse_pos
 
 func _on_HUD_weiter():
-	new_state = STATE_SETSTART
+	if set_ends:
+		new_state = STATE_SETSTART
+	else:
+		new_state = STATE_SEARCH

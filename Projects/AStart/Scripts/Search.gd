@@ -7,8 +7,9 @@ var start_pos
 var size
 var dirs = [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]
 
-enum DISTTYPE { BreadthFirst, AStarEukl, AStarDist }
+enum DISTTYPE { BreadthFirst, AStarEukl, AStarDist, Mix }
 export(DISTTYPE) var Type = DISTTYPE.BreadthFirst
+export(float, 0.0, 1.0) var MixFactor = 0.5
 
 func start(start, target, max_tile_idx):
 	blocks = []
@@ -55,11 +56,20 @@ func cmp_traveld(elem, pos):
 	else:
 		return d_elem < d_pos
 
+func mixed_dist(pos):
+	return MixFactor * dist2finish(pos) + (1.0-MixFactor) * $Storage.get_distv(pos)
+
+func cmp_mix(elem, pos):
+	return mixed_dist(elem) < mixed_dist(pos)
+	
+
 func get_idx(pos):
 	if Type == DISTTYPE.AStarEukl:
 		return blocks.bsearch_custom(pos, self, "cmp_dist2finish_eukl")
 	elif Type == DISTTYPE.AStarDist:
 		return blocks.bsearch_custom(pos, self, "cmp_dist2finish")
+	elif Type == DISTTYPE.Mix:
+		return blocks.bsearch_custom(pos, self, "cmp_mix")
 	else:
 		return blocks.bsearch_custom(pos, self, "cmp_traveld")
 

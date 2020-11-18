@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Scripts/HUD.gd" type="Script" id=1]
+[ext_resource path="res://Ubuntu-Medium.ttf" type="DynamicFontData" id=2]
 
 [sub_resource type="DynamicFontData" id=1]
 font_path = "res://Ubuntu-Medium.ttf"
@@ -17,6 +18,18 @@ size = 64
 outline_size = 1
 outline_color = Color( 0.0235294, 0.0117647, 0.0117647, 1 )
 font_data = SubResource( 3 )
+
+[sub_resource type="DynamicFont" id=6]
+size = 24
+font_data = ExtResource( 2 )
+
+[sub_resource type="DynamicFont" id=5]
+size = 32
+font_data = ExtResource( 2 )
+
+[sub_resource type="DynamicFont" id=7]
+size = 20
+font_data = ExtResource( 2 )
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource( 1 )
@@ -47,4 +60,89 @@ flat = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Options" type="VBoxContainer" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -250.0
+margin_top = 100.0
+margin_right = -50.0
+margin_bottom = 500.0
+grow_horizontal = 0
+grow_vertical = 0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Options"]
+margin_right = 200.0
+margin_bottom = 28.0
+custom_fonts/font = SubResource( 6 )
+text = "Search Type:"
+
+[node name="SearchTypes" type="ItemList" parent="Options"]
+margin_top = 32.0
+margin_right = 200.0
+margin_bottom = 41.0
+custom_fonts/font = SubResource( 5 )
+auto_height = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label2" type="Label" parent="Options"]
+margin_top = 45.0
+margin_right = 200.0
+margin_bottom = 73.0
+custom_fonts/font = SubResource( 6 )
+text = "Mix factor:"
+
+[node name="Mix" type="HSlider" parent="Options"]
+margin_top = 77.0
+margin_right = 200.0
+margin_bottom = 93.0
+max_value = 1.0
+step = 0.02
+value = 0.5
+tick_count = 10
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ClearMap" type="CheckBox" parent="Options"]
+margin_top = 97.0
+margin_right = 200.0
+margin_bottom = 128.0
+custom_fonts/font = SubResource( 7 )
+pressed = true
+text = "Clear Map"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ClearEndPoints" type="CheckBox" parent="Options"]
+margin_top = 132.0
+margin_right = 200.0
+margin_bottom = 163.0
+custom_fonts/font = SubResource( 7 )
+disabled = true
+pressed = true
+text = "Clear Ends"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="Options"]
+margin_top = 167.0
+margin_right = 200.0
+margin_bottom = 400.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color( 0, 0, 0, 0.156863 )
 [connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]
+[connection signal="item_selected" from="Options/SearchTypes" to="." method="_on_SearchTypes_item_selected"]
+[connection signal="value_changed" from="Options/Mix" to="." method="_on_Mix_value_changed"]
+[connection signal="toggled" from="Options/ClearMap" to="." method="_on_ClearMap_toggled"]
+[connection signal="toggled" from="Options/ClearEndPoints" to="." method="_on_ClearEndPoints_toggled"]
