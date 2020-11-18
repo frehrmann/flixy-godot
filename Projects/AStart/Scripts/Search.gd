@@ -6,7 +6,9 @@ var current_block
 var start_pos
 var size
 var dirs = [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]
-export(bool) var AStar
+
+enum DISTTYPE { BreadthFirst, AStarEukl, AStarDist }
+export(DISTTYPE) var Type = DISTTYPE.BreadthFirst
 
 func start(start, target, max_tile_idx):
 	blocks = []
@@ -31,13 +33,22 @@ func blocked():
 func is_in(pos):
 	return pos.x >= 0 and pos.y >= 0 and pos.x < size.x and pos.y < size.y 
 
-func dist2finish(elem, pos):
+func cmp_dist2finish_eukl(elem, pos):
 	return elem.distance_to(finish) < pos.distance_to(finish)
+
+func dist2finish(pos):
+	return abs(pos.x - finish.x) + abs(pos.y - finish.y)
+
+func cmp_dist2finish(elem, pos):
+	return dist2finish(elem) < dist2finish(pos) 
 
 func add_to_queue(pos):
 	if !blocks.has(pos):
-		if AStar:
-			var idx = blocks.bsearch_custom(pos, self, "dist2finish")
+		if Type == DISTTYPE.AStarEukl:
+			var idx = blocks.bsearch_custom(pos, self, "cmp_dist2finish_eukl")
+			blocks.insert(idx, pos)
+		elif Type == DISTTYPE.AStarDist:
+			var idx = blocks.bsearch_custom(pos, self, "cmp_dist2finish")
 			blocks.insert(idx, pos)
 		else:
 			blocks.push_back(pos)

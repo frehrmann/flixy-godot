@@ -29,7 +29,7 @@ format = 1
 
 [node name="Search" type="Node" parent="."]
 script = ExtResource( 3 )
-AStar = true
+Type = 2
 
 [node name="Storage" type="Node" parent="Search"]
 script = ExtResource( 4 )
